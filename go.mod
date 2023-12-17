@@ -9,5 +9,5 @@ require (
 
 require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/slmcmahon/go-azdo v0.0.2 // indirect
+	github.com/slmcmahon/go-azdo v0.0.3 // indirect
 )

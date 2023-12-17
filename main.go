@@ -46,7 +46,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	response, err := azdo.GetVariableLibraries(pat, org, project)
+	ops := azdo.NewAZDOOperations(pat, org, project)
+
+	response, err := ops.GetVariableLibraries()
 	if err != nil {
 		log.Fatal(err)
 	}
