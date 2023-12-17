@@ -11,6 +11,7 @@ import (
 	"sort"
 
 	"github.com/olekukonko/tablewriter"
+	slmcommon "github.com/slmcmahon/go-common"
 )
 
 type VarLib struct {
@@ -30,34 +31,32 @@ func (a ByName) Len() int           { return len(a) }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
 
-// checkEnvOrFlag checks if the command-line flag is set; if not, it checks for an environment variable.
-// If neither is set, it logs a fatal error.
-func checkEnvOrFlag(flagValue, envVarName string) string {
-	if flagValue != "" {
-		return flagValue
-	}
-
-	envValue, exists := os.LookupEnv(envVarName)
-	if !exists {
-		log.Fatalf("No value was provided for '%s'.\n\nEither provide it as a command-line argument or set an environment variable called '%s'.\n\nExiting.", envVarName, envVarName)
-	}
-
-	return envValue
-}
-
 func main() {
-	var patFlag string
-	var orgFlag string
-	var projectFlag string
+	var (
+		patFlag     string
+		orgFlag     string
+		projectFlag string
+	)
 
 	flag.StringVar(&orgFlag, "org", "", "Azure Devops Organization")
 	flag.StringVar(&projectFlag, "project", "", "Azure DevOps Project")
 	flag.StringVar(&patFlag, "pat", "", "Personal Access Token")
 	flag.Parse()
 
-	pat := checkEnvOrFlag(patFlag, "AZDO_PAT")
-	org := checkEnvOrFlag(orgFlag, "AZDO_ORG")
-	project := checkEnvOrFlag(projectFlag, "AZDO_PROJECT")
+	pat, err := slmcommon.CheckEnvOrFlag(patFlag, "AZDO_PAT")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	org, err := slmcommon.CheckEnvOrFlag(orgFlag, "AZDO_ORG")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	project, err := slmcommon.CheckEnvOrFlag(projectFlag, "AZDO_PROJECT")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	url := fmt.Sprintf("https://dev.azure.com/%s/%s/_apis/distributedtask/variablegroups?api-version=6.0-preview.2", org, project)
 	client := &http.Client{}
